@@ -3,3 +3,5 @@ Nama:Lailli Nur Fajri
 NIM: 1801624036
 Nama: Najla Ratnamaya Syafnita
 NIM: 1801624182
+Nama: Donna Oktaviani Shabila
+NIM: 1801624003
