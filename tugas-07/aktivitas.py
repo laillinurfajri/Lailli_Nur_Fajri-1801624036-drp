@@ -409,19 +409,16 @@ elif aktivitas == "tidur malam":
     ).lower()
 
     if alarm == "ya":
-
         waktu_alarm = input(
             "Set alarm jam berapa? (contoh 05:00): "
         )
         print("Alarm berhasil dipasang jam", waktu_alarm, "⏰")
         print("Alarm sedang menunggu waktu yang sesuai...")
-
+            
         while True:
-
             sekarang = datetime.now().strftime("%H:%M")
-
+            
             if sekarang == waktu_alarm:
-
                 print("\n⏰ ALARM BERBUNYI!! ⏰")
                 print("AYO BANGUN! CEPAT! NANTI TELAT")
 
@@ -433,6 +430,7 @@ elif aktivitas == "tidur malam":
         else:
             print("OKEE, kamu sudah siap untuk bangun lebih siang")
             print("Selamat tidur dan mimpi indah 😴🌙✨")
+
 else:
     print("\nAktivitas belum tersedia.")
     print("Silahkan pilih aktivitas yang ada di daftar 😊")
