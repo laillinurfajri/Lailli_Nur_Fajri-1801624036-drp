@@ -432,7 +432,7 @@ elif aktivitas == "tidur malam":
             
         else:
             print("OKEE, kamu sudah siap untuk bangun lebih siang")
-        print("\nSelamat tidur dan mimpi indah 🌙✨")
+            print("Selamat tidur dan mimpi indah 😴🌙✨")
 else:
     print("\nAktivitas belum tersedia.")
     print("Silahkan pilih aktivitas yang ada di daftar 😊")
