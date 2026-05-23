@@ -291,7 +291,7 @@ if aktivitas == "makan malam":
                 print("Topping tambahan", topping2, "Berhasil ditambahkan 😋")
 
             elif tambahan == "tidak":
-                print("Baiklah, topping sudah cukup 😋✨")
+                print("Baiklah, topping sudah cukup 😋🤩✨")
                 break
             else:
                 print("Topping tidak tersedia 😢")
