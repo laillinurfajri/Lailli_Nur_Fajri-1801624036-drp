@@ -427,9 +427,9 @@ elif aktivitas == "tidur malam":
                 break
             time.sleep(30) 
             
-        else:
-            print("OKEE, kamu sudah siap untuk bangun lebih siang")
-            print("Selamat tidur dan mimpi indah 😴🌙✨")
+    else:
+        print("OKEE, kamu sudah siap untuk bangun lebih siang")
+        print("Selamat tidur dan mimpi indah 😴🌙✨")
 
 else:
     print("\nAktivitas belum tersedia.")
