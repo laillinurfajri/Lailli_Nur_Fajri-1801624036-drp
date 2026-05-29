@@ -37,7 +37,7 @@ print("\nAktivitas yang tersedia:")
 print("1. makan malam 🍽️")
 print("2. tidur malam 😴")
 
-Pilihan = input("Masukan aktivitas: (1/2): ")
+pilihan = input("Masukan aktivitas: (1/2): ")
 
 if pilihan == "1":
     aktivitas = "makan malam"
