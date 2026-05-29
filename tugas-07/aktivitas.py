@@ -6,7 +6,7 @@ for baris in range(8):
             print("⬜", end="")
         else:
             print("⬛", end="")
-        print()
+    print()
 
 from datetime import datetime
 import random
