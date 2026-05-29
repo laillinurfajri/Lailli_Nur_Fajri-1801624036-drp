@@ -1,3 +1,13 @@
+print("=== PAPAN CATUR ===")
+
+for baris in range(8):
+    for kolom in range(8):
+        if (baris + kolom) % 2 == 0:
+            print("⬜", end="")
+        else:
+            print("⬛", end="")
+        print()
+
 from datetime import datetime
 import random
 
@@ -20,11 +30,20 @@ if tanggal.day >= 25:
     print("Tanggal tua terdeteksi 😔")
     print("Sepertinya kamu harus mulai berhemat sekarang 💸")
 
+#List kosong untuk aktivitas
+daftar_aktivitas = []
+
 print("\nAktivitas yang tersedia:")
 print("1. makan malam 🍽️")
 print("2. tidur malam 😴")
 
 aktivitas = input("Masukan aktivitas: ").lower()
+
+#Menyimpan aktivitas ke dalam list
+daftar_aktivitas.append(aktivitas)
+
+#informasi tambahan aktivitas
+keterangan = input("Tambahkan keterangan aktivitas: ")
 
 if aktivitas == "makan malam":
     print("\n == Selamat datang di program makan malam 🍽️ ==")
@@ -76,7 +95,7 @@ if aktivitas == "makan malam":
                 print("Selamat menikmati! 😋✨")
 
             elif minuman == "air putih":
-                print("Ai putih, pilihan yang sangat bagus!")
+                print("Air putih, pilihan yang sangat bagus!")
 
                 print("Ikan goreng dan Air putih sudah siap dihidangkan!")
                 print("Selamat menikmati! 😋✨")
@@ -357,7 +376,7 @@ if aktivitas == "makan malam":
 
     else:
         print("\n❌ Menu tidak tersedia.")
-        print("Silahlkan membeli bahan terlebih dahulu 🛒")
+        print("Silahkan membeli bahan terlebih dahulu 🛒")
 
 elif aktivitas == "tidur malam":
     print("\n=== MODE TIDUR === 😴")
@@ -434,3 +453,13 @@ elif aktivitas == "tidur malam":
 else:
     print("\nAktivitas belum tersedia.")
     print("Silahkan pilih aktivitas yang ada di daftar 😊")
+
+print("\n=========================================")
+print("===== PROGRAM AKTIVITAS YANG TERSIMPAN =====")
+print("=========================================")
+
+for nomor, item in enumerate(daftar_aktivitas, start=1):
+    print(f"{nomor}. {item}")
+    
+print("\nKeterangan aktivitas:")
+print(keterangan)
