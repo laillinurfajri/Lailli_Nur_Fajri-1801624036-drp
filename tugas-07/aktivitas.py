@@ -37,13 +37,22 @@ print("\nAktivitas yang tersedia:")
 print("1. makan malam 🍽️")
 print("2. tidur malam 😴")
 
-aktivitas = input("Masukan aktivitas: ").lower()
+Pilihan = input("Masukan aktivitas: (1/2): ")
+
+if pilihan == "1":
+    aktivitas = "makan malam"
+
+elif pilihan == "2":
+    aktivitas = "tidur malam"
+
+else:
+    aktivitas = "tidak tersedia"
 
 #Menyimpan aktivitas ke dalam list
 daftar_aktivitas.append(aktivitas)
 
 #informasi tambahan aktivitas
-keterangan = input("Tambahkan keterangan aktivitas: ")
+keterangan = input("Tambahkan keterangan aktivitas lain yang ingin dilakukan: ")
 
 if aktivitas == "makan malam":
     print("\n == Selamat datang di program makan malam 🍽️ ==")
