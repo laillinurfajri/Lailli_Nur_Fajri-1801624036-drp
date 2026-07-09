@@ -1,2 +1,2 @@
-# utils/__init__.py
-# Modul utilitas dan alat pendukung aplikasi Moodiary
+# tests/__init__.py
+# Automated tests untuk aplikasi Moodiary
