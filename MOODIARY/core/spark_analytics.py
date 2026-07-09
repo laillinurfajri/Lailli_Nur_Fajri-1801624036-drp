@@ -257,3 +257,121 @@ def _run_pyspark_mapreduce(journal_rows, todo_rows):
         "todo_completion_rate": completion_rate
     }
 
+# ==============================================================================
+# PYTHON FALLBACK ENGINE (SIMULASI MAPREDUCE 2 NODE)
+# ==============================================================================
+def _run_fallback_mapreduce(journal_rows, todo_rows):
+    """
+    Mereplikasi proses MapReduce PySpark secara manual menggunakan Python murni.
+    Data dipecah menjadi 2 bagian (simulasi 2 node/partisi) sebelum diproses.
+    """
+    texts = [f"{row[1] or ''} {row[2] or ''}" for row in journal_rows]
+
+
+    # ──────────────────────────────────────────
+    # SIMULASI PARTISI: Pecah data ke 2 node
+    # ──────────────────────────────────────────
+    mid = len(texts) // 2
+    node_1_data = texts[:mid]      # Node/Partisi 1
+    node_2_data = texts[mid:]      # Node/Partisi 2
+    partition_counts = [len(node_1_data), len(node_2_data)]
+
+
+    # ──────────────────────────────────────────
+    # FASE MAP: Setiap node memproses bagiannya
+    # ──────────────────────────────────────────
+    def map_phase(data_partition):
+        """MAP: teks → [(kata, 1), (kata, 1), ...]"""
+        pairs = []
+        for text in data_partition:
+            tokens = re.split(r"[^a-zA-Z0-9]+", text.lower())
+            for token in tokens:
+                if token and len(token) > 3 and token not in STOP_WORDS:
+                    pairs.append((token, 1))
+        return pairs
+
+
+    mapped_node_1 = map_phase(node_1_data)
+    mapped_node_2 = map_phase(node_2_data)
+
+
+    # ──────────────────────────────────────────
+    # FASE SHUFFLE: Gabungkan hasil MAP dari 2 node
+    # ──────────────────────────────────────────
+    all_mapped = mapped_node_1 + mapped_node_2
+
+
+    # ──────────────────────────────────────────
+    # FASE REDUCE: Jumlahkan per kata kunci
+    # ──────────────────────────────────────────
+    reduced = {}
+    for word, count in all_mapped:
+        reduced[word] = reduced.get(word, 0) + count
+
+
+    word_freq = sorted(reduced.items(), key=lambda x: x[1], reverse=True)[:10]
+
+
+    # MAPREDUCE MOOD DISTRIBUTION
+    moods = [row[3] for row in journal_rows if row[3]]
+    mid_m = len(moods) // 2
+    mood_map_1 = [(m, 1) for m in moods[:mid_m]]
+    mood_map_2 = [(m, 1) for m in moods[mid_m:]]
+    mood_reduced = {}
+    for mood, c in mood_map_1 + mood_map_2:
+        mood_reduced[mood] = mood_reduced.get(mood, 0) + c
+    mood_dist = sorted(mood_reduced.items(), key=lambda x: x[1], reverse=True)
+
+
+    # Produktivitas
+    total_todo = len(todo_rows)
+    selesai_todo = sum(1 for row in todo_rows if row[1] == 1)
+    completion_rate = round((selesai_todo / total_todo * 100), 1) if total_todo > 0 else 0.0
+
+
+    return {
+        "engine": "Python Fallback Engine (Simulasi MapReduce 2 Node)",
+        "pyspark_available": False,
+        "num_partitions": NUM_PARTITIONS,
+        "partition_sizes": partition_counts,
+        "word_frequency": word_freq,
+        "mood_distribution": mood_dist,
+        "total_journal_processed": len(journal_rows),
+        "total_todo_processed": total_todo,
+        "todo_completion_rate": completion_rate
+    }
+
+
+
+
+# ==============================================================================
+# ANTARMUKA UTAMA
+# ==============================================================================
+def get_analytics_report():
+    """
+    Fungsi utama: mengambil seluruh data dari SQLite lalu memproses
+    dengan konsep MapReduce menggunakan PySpark (atau fallback engine).
+    Data dipecah ke 2 partisi/node untuk mensimulasikan data raya.
+    """
+    conn = database.get_db_connection()
+    cursor = conn.cursor()
+
+
+    cursor.execute("SELECT id, judul, isi, mood, kategori FROM journal")
+    journal_rows = cursor.fetchall()
+
+
+    cursor.execute("SELECT id, selesai, prioritas FROM todo")
+    todo_rows = cursor.fetchall()
+
+
+    conn.close()
+
+
+    if PYSPARK_AVAILABLE:
+        try:
+            return _run_pyspark_mapreduce(journal_rows, todo_rows)
+        except Exception:
+            return _run_fallback_mapreduce(journal_rows, todo_rows)
+    else:
+        return _run_fallback_mapreduce(journal_rows, todo_rows)
