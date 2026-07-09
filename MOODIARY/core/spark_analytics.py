@@ -181,3 +181,88 @@ def generate_dummy_data(jumlah_journal=50, jumlah_todo=20, jumlah_mood=30):
         "total_records": jumlah_journal + jumlah_todo + jumlah_mood
     }
 
+# ==============================================================================
+# PYSPARK MAPREDUCE ENGINE (2 NODE/PARTISI)
+# ==============================================================================
+def _run_pyspark_mapreduce(journal_rows, todo_rows):
+    """
+    Menjalankan proses MapReduce menggunakan Apache PySpark RDD API
+    dengan data yang dipecah ke dalam 2 node/partisi (repartition).
+
+
+    Konsep MapReduce yang diimplementasikan:
+    ─────────────────────────────────────────
+    FASE MAP   : Setiap catatan jurnal di-map menjadi pasangan (kata, 1).
+                 Data dipecah ke 2 partisi untuk simulasi 2 node.
+    FASE REDUCE: Pasangan (kata, 1) di-reduce dengan menjumlahkan nilai
+                 untuk setiap kata kunci yang sama (reduceByKey).
+    """
+    spark = SparkSession.builder \
+        .appName("MoodiaryMapReduce") \
+        .master("local[2]") \
+        .getOrCreate()
+
+
+    # Siapkan teks dari seluruh jurnal
+    texts = [f"{row[1] or ''} {row[2] or ''}" for row in journal_rows]
+
+
+    # ──────────────────────────────────────────
+    # MAPREDUCE WORD FREQUENCY (2 PARTISI/NODE)
+    # ──────────────────────────────────────────
+
+
+    # Buat RDD dari data teks dan REPARTISI ke 2 node
+    rdd_texts = spark.sparkContext.parallelize(texts, NUM_PARTITIONS)
+
+
+    # Catat berapa record di setiap partisi/node
+    partition_counts = rdd_texts.glom().map(len).collect()
+
+
+    # FASE MAP: Pecah teks → (kata, 1) per partisi
+    rdd_words = rdd_texts \
+        .flatMap(lambda text: re.split(r"[^a-zA-Z0-9]+", text.lower())) \
+        .filter(lambda word: word and len(word) > 3 and word not in STOP_WORDS) \
+        .map(lambda word: (word, 1))
+
+
+    # FASE REDUCE: Jumlahkan per kata kunci (reduceByKey)
+    rdd_word_counts = rdd_words.reduceByKey(lambda a, b: a + b)
+
+
+    # Ambil Top 10 kata terbanyak
+    word_freq = rdd_word_counts \
+        .sortBy(lambda x: x[1], ascending=False) \
+        .take(10)
+
+
+    # ──────────────────────────────────────────
+    # MAPREDUCE MOOD DISTRIBUTION (2 PARTISI)
+    # ──────────────────────────────────────────
+    moods = [row[3] for row in journal_rows if row[3]]
+    rdd_moods = spark.sparkContext.parallelize(moods, NUM_PARTITIONS)
+    rdd_mood_counts = rdd_moods \
+        .map(lambda mood: (mood, 1)) \
+        .reduceByKey(lambda a, b: a + b) \
+        .sortBy(lambda x: x[1], ascending=False)
+    mood_dist = rdd_mood_counts.collect()
+
+
+    # Produktivitas
+    total_todo = len(todo_rows)
+    selesai_todo = sum(1 for row in todo_rows if row[1] == 1)
+    completion_rate = round((selesai_todo / total_todo * 100), 1) if total_todo > 0 else 0.0
+
+
+    return {
+        "engine": "Apache PySpark MapReduce (local[2])",
+        "pyspark_available": True,
+        "num_partitions": NUM_PARTITIONS,
+        "partition_sizes": partition_counts,
+        "word_frequency": word_freq,
+        "mood_distribution": mood_dist,
+        "total_journal_processed": len(journal_rows),
+        "total_todo_processed": total_todo,
+        "todo_completion_rate": completion_rate
+    }
