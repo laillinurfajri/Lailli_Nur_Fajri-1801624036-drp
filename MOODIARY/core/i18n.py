@@ -205,3 +205,88 @@ TEXT = {
         "reset_done_msg": "All record data for your account has been cleared."
     }
 }
+
+
+QUOTES = {
+    "ID": [
+        "Percayalah pada dirimu sendiri.",
+        "Kemajuan kecil tetaplah kemajuan.",
+        "Setiap hari adalah awal yang baru.",
+        "Percayalah pada proses.",
+        "Jangan menyerah sebelum mencoba.",
+        "Kesuksesan dimulai dari langkah kecil.",
+        "Tetap semangat, kamu hebat.",
+        "Fokus pada tujuanmu.",
+        "Hari ini lebih baik dari kemarin.",
+        "Masa depanmu dibangun hari ini.",
+        "Konsistensi lebih penting daripada kesempurnaan.",
+        "Jangan takut untuk memulai.",
+        "Hal besar dimulai dari langkah kecil.",
+        "Teruslah belajar dan berkembang.",
+        "Kesalahan adalah bagian dari proses belajar.",
+        "Kamu lebih kuat dari yang kamu kira.",
+        "Syukuri setiap pencapaian kecil.",
+        "Jadilah versi terbaik dirimu.",
+        "Kesempatan datang bagi mereka yang berusaha.",
+        "Tetaplah optimis menghadapi tantangan.",
+        "Impian membutuhkan tindakan nyata.",
+        "Tidak ada usaha yang sia-sia.",
+        "Berani mencoba adalah awal keberhasilan.",
+        "Satu langkah hari ini lebih baik daripada menunda.",
+        "Nikmati proses menuju tujuanmu.",
+        "Kesabaran adalah kunci pertumbuhan.",
+        "Waktu terbaik untuk memulai adalah sekarang.",
+        "Percaya bahwa hal baik akan datang.",
+        "Jangan bandingkan perjalananmu dengan orang lain.",
+        "Kamu mampu melewati hari ini.",
+        "Terus melangkah meski perlahan."
+    ],
+    "EN": [
+        "Believe in yourself.",
+        "Small progress is still progress.",
+        "Every day is a new beginning.",
+        "Trust the process.",
+        "Never give up.",
+        "Success starts with small steps.",
+        "Stay positive.",
+        "Focus on your goals.",
+        "Today is better than yesterday.",
+        "Your future is built today.",
+        "Consistency is more important than perfection.",
+        "Do not be afraid to start.",
+        "Great things begin with small steps.",
+        "Keep learning and growing.",
+        "Mistakes are part of learning.",
+        "You are stronger than you think.",
+        "Be grateful for small achievements.",
+        "Become the best version of yourself.",
+        "Opportunities come to those who try.",
+        "Stay optimistic through challenges.",
+        "Dreams require action.",
+        "No effort is ever wasted.",
+        "Courage is the start of success.",
+        "One step today is better than waiting.",
+        "Enjoy the journey toward your goals.",
+        "Patience is the key to growth.",
+        "The best time to start is now.",
+        "Believe that good things are coming.",
+        "Do not compare your journey to others.",
+        "You can get through today.",
+        "Keep moving forward, even slowly."
+    ]
+}
+
+
+def get_text(key, **kwargs):
+    teks = TEXT[LANG].get(key, key)
+    if kwargs:
+        teks = teks.format(**kwargs)
+    return teks
+
+
+def set_lang(lang_code):
+    global LANG
+    LANG = lang_code
+
+
+set_language = set_lang
