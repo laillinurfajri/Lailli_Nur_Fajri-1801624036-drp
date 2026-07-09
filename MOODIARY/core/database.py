@@ -172,3 +172,138 @@ def init_user_db(username=None):
 init_auth_db()
 init_user_db(None)
 
+
+def export_user_data_to_json(filepath):
+    """
+    Mengekspor seluruh data akun aktif (journal, mood, todo, wish) ke file JSON.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+
+    data = {
+        "version": "2.0",
+        "username": ACTIVE_USER or "Unknown",
+        "journal": [],
+        "mood": [],
+        "todo": [],
+        "wish": []
+    }
+
+
+    cursor.execute("SELECT id, tanggal, judul, isi, mood, kategori FROM journal")
+    for row in cursor.fetchall():
+        data["journal"].append({
+            "id": row[0],
+            "tanggal": row[1],
+            "judul": row[2],
+            "isi": row[3],
+            "mood": row[4],
+            "kategori": row[5]
+        })
+
+
+    cursor.execute("SELECT id, tanggal, mood, catatan FROM mood")
+    for row in cursor.fetchall():
+        data["mood"].append({
+            "id": row[0],
+            "tanggal": row[1],
+            "mood": row[2],
+            "catatan": row[3]
+        })
+
+
+    cursor.execute("SELECT id, tugas, detail, prioritas, deadline, selesai FROM todo")
+    for row in cursor.fetchall():
+        data["todo"].append({
+            "id": row[0],
+            "tugas": row[1],
+            "detail": row[2],
+            "prioritas": row[3],
+            "deadline": row[4],
+            "selesai": row[5]
+        })
+
+
+    cursor.execute("SELECT id, isi, kategori, biaya, prioritas, target_waktu, catatan, tercapai FROM wish")
+    for row in cursor.fetchall():
+        data["wish"].append({
+            "id": row[0],
+            "isi": row[1],
+            "kategori": row[2],
+            "biaya": row[3],
+            "prioritas": row[4],
+            "target_waktu": row[5],
+            "catatan": row[6],
+            "tercapai": row[7]
+        })
+
+
+    conn.close()
+
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    return True
+
+
+
+
+def import_user_data_from_json(filepath, replace_existing=False):
+    """
+    Mengimpor data dari file JSON ke dalam basis data pengguna aktif.
+    """
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+
+    if not isinstance(data, dict):
+        raise ValueError("Format file JSON tidak valid.")
+
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+
+    if replace_existing:
+        cursor.execute("DELETE FROM journal")
+        cursor.execute("DELETE FROM mood")
+        cursor.execute("DELETE FROM todo")
+        cursor.execute("DELETE FROM wish")
+
+
+    # Import journal
+    for item in data.get("journal", []):
+        cursor.execute(
+            "INSERT INTO journal (tanggal, judul, isi, mood, kategori) VALUES (?, ?, ?, ?, ?)",
+            (item.get("tanggal", ""), item.get("judul", ""), item.get("isi", ""), item.get("mood", "Biasa"), item.get("kategori", "Umum"))
+        )
+
+
+    # Import mood
+    for item in data.get("mood", []):
+        cursor.execute(
+            "INSERT INTO mood (tanggal, mood, catatan) VALUES (?, ?, ?)",
+            (item.get("tanggal", ""), item.get("mood", "Biasa"), item.get("catatan", ""))
+        )
+
+
+    # Import todo
+    for item in data.get("todo", []):
+        cursor.execute(
+            "INSERT INTO todo (tugas, detail, prioritas, deadline, selesai) VALUES (?, ?, ?, ?, ?)",
+            (item.get("tugas", ""), item.get("detail", ""), item.get("prioritas", "Sedang"), item.get("deadline", ""), item.get("selesai", 0))
+        )
+
+
+    # Import wish
+    for item in data.get("wish", []):
+        cursor.execute(
+            "INSERT INTO wish (isi, kategori, biaya, prioritas, target_waktu, catatan, tercapai) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (item.get("isi", ""), item.get("kategori", "Umum"), item.get("biaya", "Rp 0"), item.get("prioritas", "⭐⭐ Sedang"), item.get("target_waktu", ""), item.get("catatan", ""), item.get("tercapai", 0))
+        )
+
+
+    conn.commit()
+    conn.close()
+    return True
